@@ -127,7 +127,7 @@ int main(void)
 	  HAL_Delay(500);
 	  HAL_GPIO_WritePin(GPIOA, LED3_Pin, 0);
 
-	  //test git push
+	  //test git push ไอ่ควาย
     /* USER CODE END WHILE */
 
     /* USER CODE BEGIN 3 */
