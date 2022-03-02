@@ -810,11 +810,11 @@ void package_state(void) {
 				break;
 			}
     		case 0x74 :{
-    			Motor2_On(1, 70);
+    			Motor2_On(1, 90);
 				break;
 			}
     		case 0x67 :{
-    			Motor2_On(0, 70);
+    			Motor2_On(0, 90);
 				break;
 			}
     		case 0x79 :{
