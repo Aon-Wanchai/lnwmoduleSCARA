@@ -146,9 +146,9 @@ int main(void)
 //  while (HAL_GPIO_ReadPin(BLUE_BUTTON_GPIO_Port, BLUE_BUTTON_Pin) == 1);
   while (1)
   {
-//	  for (int i = 0; i<sizeof (RX_Buffer); i++) {
-//		  RX_Buffer[i] = 0;
-//	  }
+	  for (int i = 0; i<sizeof (RX_Buffer); i++) {
+		  RX_Buffer[i] = 0;
+	  }
 	  HAL_UART_Receive(&huart2, RX_Buffer, 7, 100);
 	  for (int i = 0; i<sizeof (package); i++) {
 		  package[i] = RX_Buffer[i];
@@ -809,22 +809,22 @@ void package_state(void) {
     		Motor1_On(1, 50);
     	} else if (package[4] == 0x74) {
     		//j2+
-    		Motor2_On(0, 50);
+    		Motor2_On(0, 80);
     	} else if (package[4] == 0x67) {
     		//j2-
-    		Motor2_On(1, 50);
+    		Motor2_On(1, 80);
     	} else if (package[4] == 0x79) {
     		//j3+
-    		Motor3_On(0, 50);
+    		Motor3_On(0, 70);
     	} else if (package[4] == 0x41) {
     		//j3-
-    		Motor3_On(1, 50);
+    		Motor3_On(1, 70);
     	} else if (package[4] == 0x75) {
     		//j4+
-    		Motor4_On(0, 50);
+    		Motor4_On(0, 70);
     	} else if (package[4] == 0x6a) {
     		//j4-
-    		Motor4_On(1, 50);
+    		Motor4_On(1, 70);
     	} else {
     		//err();
     		clear_buffer();
@@ -844,6 +844,10 @@ void package_state(void) {
 //
     }
     state_check = 0;
+    Motor1_Off();
+    Motor2_Off();
+    Motor3_Off();
+    Motor4_Off();
 }
 /* USER CODE END 4 */
 
