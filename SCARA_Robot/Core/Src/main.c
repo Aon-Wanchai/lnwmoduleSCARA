@@ -146,15 +146,24 @@ int main(void)
 //  while (HAL_GPIO_ReadPin(BLUE_BUTTON_GPIO_Port, BLUE_BUTTON_Pin) == 1);
   while (1)
   {
-//	  for (int i = 0; i<sizeof (RX_Buffer); i++) {
-//		  RX_Buffer[i] = 0;
-//	  }
+	  for (int i = 0; i<sizeof (RX_Buffer); i++) {
+		  RX_Buffer[i] = 0;
+	  }
 	  HAL_UART_Receive(&huart2, RX_Buffer, 7, 100);
 	  for (int i = 0; i<sizeof (package); i++) {
 		  package[i] = RX_Buffer[i];
-			  //printf("package[%d] : %d\n", i, package[i]);
+//		  printf("package[%d] : %d\n", i, package[i]);
 	  }
 	  package_state();
+
+//	  Motor2_On(0,80);
+//	  HAL_Delay(1000);
+//	  Motor2_Off();
+//	  HAL_Delay(300);
+//	  Motor2_On(0,80);
+//	  HAL_Delay(1000);
+//	  Motor2_Off();
+//	  HAL_Delay(300);
     /* USER CODE END WHILE */
 
     /* USER CODE BEGIN 3 */
@@ -761,11 +770,8 @@ void CheckSum(uint8_t sum){
 }
 
 void clear_buffer(void) {
-    int i;
-//    for (int i = 0; i<sizeof (checksum); i++) {
-//		checksum[i] = 0;
-//	}
-    for (i = 0; i<sizeof (package); i++) {
+
+    for (int i= 0; i<sizeof (package); i++) {
         package[i] = 0;
     }
 }
@@ -782,19 +788,24 @@ void package_state(void) {
             	//jointjog
             	HAL_UART_Transmit(&huart2,acknowledge,sizeof(acknowledge),100);
                 state_check = 1;
-            } else if (package[1] == 0x02) {
+            }
+            else if (package[1] == 0x02) {
                 state_check = 2;
-            } else if (package[1] == 0x03) {
+            }
+            else if (package[1] == 0x03) {
                 state_check = 3;
-            } else {
+            }
+            else {
                 //err();
                 clear_buffer();
             }
-        } else {
+        }
+        else {
             //err();
             clear_buffer();
         }
-    } else {
+    }
+    else {
         //err();
         clear_buffer();
     }
@@ -803,45 +814,48 @@ void package_state(void) {
     	if (package[4] == 0x72) {
     		//j1+
     		Motor1_On(0, 50);
-
-    	} else if (package[4] == 0x66) {
+    	}
+    	else if (package[4] == 0x66) {
     		//j1-
     		Motor1_On(1, 50);
-    	} else if (package[4] == 0x74) {
+    	}
+    	else if (package[4] == 0x74) {
     		//j2+
     		Motor2_On(0, 50);
-    	} else if (package[4] == 0x67) {
+    	}
+    	else if (package[4] == 0x67) {
     		//j2-
     		Motor2_On(1, 50);
-    	} else if (package[4] == 0x79) {
+    	}
+    	else if (package[4] == 0x79) {
     		//j3+
     		Motor3_On(0, 50);
-    	} else if (package[4] == 0x41) {
+    	}
+    	else if (package[4] == 0x41) {
     		//j3-
     		Motor3_On(1, 50);
-    	} else if (package[4] == 0x75) {
+    	}
+    	else if (package[4] == 0x75) {
     		//j4+
     		Motor4_On(0, 50);
-    	} else if (package[4] == 0x6a) {
+    	}
+    	else if (package[4] == 0x6a) {
     		//j4-
     		Motor4_On(1, 50);
-    	} else {
+    	}
+    	else {
     		//err();
-    		clear_buffer();
-    		Motor1_Off();
-    		Motor2_Off();
-    		Motor3_Off();
-    		Motor4_Off();
+//    		clear_buffer();
+//    		Motor1_Off();
+//    		Motor2_Off();
+//    		Motor3_Off();
+//    		Motor4_Off();
     	}
     	clear_buffer();
     	Motor1_Off();
     	Motor2_Off();
     	Motor3_Off();
     	Motor4_Off();
-//    } else if (state_check == 2) {
-//
-//    } else if (state_check == 3) {
-//
     }
     state_check = 0;
 }
