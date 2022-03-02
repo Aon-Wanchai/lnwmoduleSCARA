@@ -67,11 +67,20 @@ static void MX_SPI2_Init(void);
 static void MX_USART3_UART_Init(void);
 static void MX_TIM8_Init(void);
 /* USER CODE BEGIN PFP */
-
+long map(long x, long fromLow, long fromHigh, long toLow, long toHigh);
+void Motor1_On(char Direction, char speed);
+void Motor2_On(char Direction, char speed);
+void Motor3_On(char Direction, char speed);
+void Motor4_On(char Direction, char speed);
+void Motor1_Off();
+void Motor2_Off();
+void Motor3_Off();
+void Motor4_Off();
 /* USER CODE END PFP */
 
 /* Private user code ---------------------------------------------------------*/
 /* USER CODE BEGIN 0 */
+
 
 /* USER CODE END 0 */
 
@@ -121,46 +130,20 @@ int main(void)
 
 //  HAL_TIM_PWM_Start(&htim3, TIM_CHANNEL_1); //M1
 //  HAL_TIM_PWM_Start(&htim4, TIM_CHANNEL_1); //M2
-//  HAL_TIM_PWM_Start(&htim2, TIM_CHANNEL_3);	//M3
+//  HAL_TIM_PWM_Start(&htim2, TIM_CHANNEL_3); //M3
 //  HAL_TIM_PWM_Start(&htim1, TIM_CHANNEL_2); //M4
-  TIM3->PSC = 60000-1; //Min 60000 = 15 Hz, Max 2571 = 350Hz
-  TIM4->PSC = 750-1; //Min 18000 = 50 Hz, Max 750 = 1.2 KHz
-  TIM2->PSC = 30000-1; //Min 30000 = 30 Hz, Max 1800 = 500 Hz
-  TIM1->PSC = 600-1;   //Min 6000  = 30 Hz,  Max 1800 = 1 KHz
 
   while (HAL_GPIO_ReadPin(BLUE_BUTTON_GPIO_Port, BLUE_BUTTON_Pin) == 1);
   while (1)
   {
-	  HAL_TIM_PWM_Start(&htim3, TIM_CHANNEL_1); //M1
-//	  HAL_TIM_PWM_Start(&htim4, TIM_CHANNEL_1); //M2
-//	  HAL_TIM_PWM_Start(&htim2, TIM_CHANNEL_3);	//M3
-//	  HAL_TIM_PWM_Start(&htim1, TIM_CHANNEL_2); //M4
-	  HAL_GPIO_WritePin(DIR_M1_GPIO_Port, DIR_M1_Pin, 1);
-//	  HAL_GPIO_WritePin(DIR_M2_GPIO_Port, DIR_M2_Pin, 1);
-//	  HAL_GPIO_WritePin(DIR_M3_GPIO_Port, DIR_M3_Pin, 1);
-//	  HAL_GPIO_WritePin(DIR_M4_GPIO_Port, DIR_M4_Pin, 1);
-	  HAL_Delay(2500);
-	  HAL_TIM_PWM_Stop(&htim3, TIM_CHANNEL_1);
-//	  HAL_TIM_PWM_Stop(&htim4, TIM_CHANNEL_1);
-//	  HAL_TIM_PWM_Stop(&htim2, TIM_CHANNEL_3);
-//	  HAL_TIM_PWM_Stop(&htim1, TIM_CHANNEL_2);
+	  Motor4_On(1, 100);
 	  HAL_Delay(1000);
-
-	  HAL_TIM_PWM_Start(&htim3, TIM_CHANNEL_1); //M1
-//	  HAL_TIM_PWM_Start(&htim4, TIM_CHANNEL_1); //M2
-//	  HAL_TIM_PWM_Start(&htim2, TIM_CHANNEL_3);	//M3
-//	  HAL_TIM_PWM_Start(&htim1, TIM_CHANNEL_2); //M4
-	  HAL_GPIO_WritePin(DIR_M1_GPIO_Port, DIR_M1_Pin, 0);
-//	  HAL_GPIO_WritePin(DIR_M2_GPIO_Port, DIR_M2_Pin, 0);
-//	  HAL_GPIO_WritePin(DIR_M3_GPIO_Port, DIR_M3_Pin, 0);
-//	  HAL_GPIO_WritePin(DIR_M4_GPIO_Port, DIR_M4_Pin, 0);
-	  HAL_Delay(2500);
-	  HAL_TIM_PWM_Stop(&htim3, TIM_CHANNEL_1);
-//	  HAL_TIM_PWM_Stop(&htim4, TIM_CHANNEL_1);
-//	  HAL_TIM_PWM_Stop(&htim2, TIM_CHANNEL_3);
-//	  HAL_TIM_PWM_Stop(&htim1, TIM_CHANNEL_2);
+	  Motor4_Off();
+	  HAL_Delay(300);
+	  Motor4_On(0, 100);
 	  HAL_Delay(1000);
-
+	  Motor4_Off();
+	  HAL_Delay(300);
     /* USER CODE END WHILE */
 
     /* USER CODE BEGIN 3 */
@@ -411,7 +394,7 @@ static void MX_TIM3_Init(void)
 
   /* USER CODE END TIM3_Init 1 */
   htim3.Instance = TIM3;
-  htim3.Init.Prescaler = 9000-1;
+  htim3.Init.Prescaler = 10000-1;
   htim3.Init.CounterMode = TIM_COUNTERMODE_UP;
   htim3.Init.Period = 100-1;
   htim3.Init.ClockDivision = TIM_CLOCKDIVISION_DIV1;
@@ -706,6 +689,55 @@ static void MX_GPIO_Init(void)
 }
 
 /* USER CODE BEGIN 4 */
+
+long map(long x, long fromLow, long fromHigh, long toLow, long toHigh) {
+  return ((x - fromLow) * (toHigh - toLow) / (fromHigh - fromLow) + toLow);
+}
+
+void Motor1_On(char Direction, char speed) {
+	HAL_GPIO_WritePin(DIR_M1_GPIO_Port, DIR_M1_Pin, Direction);
+
+	//Min 60000 = 15 Hz, Max 2571 = 350Hz
+	TIM3->PSC = (900000 / map(speed, 0, 100, 15, 350)) - 1;
+	HAL_TIM_PWM_Start(&htim3, TIM_CHANNEL_1);
+}
+
+void Motor2_On(char Direction, char speed) {
+	HAL_GPIO_WritePin(DIR_M2_GPIO_Port, DIR_M2_Pin, Direction);
+	//Min 18000 = 50 Hz, Max 750 = 1.2 KHz
+	TIM4->PSC = (900000 / map(speed, 0, 100, 50, 1200)) - 1;
+	HAL_TIM_PWM_Start(&htim4, TIM_CHANNEL_1);
+}
+
+void Motor3_On(char Direction, char speed) {
+	HAL_GPIO_WritePin(DIR_M3_GPIO_Port, DIR_M3_Pin, Direction);
+	//Min 30000 = 30 Hz, Max 1800 = 500 Hz
+	TIM2->PSC = (900000 / map(speed, 0, 100, 30, 500)) - 1;
+	HAL_TIM_PWM_Start(&htim2, TIM_CHANNEL_3);
+}
+
+void Motor4_On(char Direction, char speed) {
+	HAL_GPIO_WritePin(DIR_M4_GPIO_Port, DIR_M4_Pin, Direction);
+	//Min 600000  = 30 Hz,  Max 1800 = 1 KHz
+	TIM1->PSC = (1800000 / map(speed, 0, 100, 30, 1000)) - 1;
+	HAL_TIM_PWM_Start(&htim1, TIM_CHANNEL_2);
+}
+
+void Motor1_Off() {
+	HAL_TIM_PWM_Stop(&htim3, TIM_CHANNEL_1);
+}
+
+void Motor2_Off() {
+	HAL_TIM_PWM_Stop(&htim4, TIM_CHANNEL_1);
+}
+
+void Motor3_Off() {
+	HAL_TIM_PWM_Stop(&htim2, TIM_CHANNEL_3);
+}
+
+void Motor4_Off() {
+	HAL_TIM_PWM_Stop(&htim1, TIM_CHANNEL_2);
+}
 
 /* USER CODE END 4 */
 
