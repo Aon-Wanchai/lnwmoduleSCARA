@@ -807,22 +807,18 @@ void package_state(void) {
     	switch (package[4]) {
     		case 0x72 :{
     			Motor1_On(1, 30);
-    			HAL_Delay(100);
     			break;
     		}
     		case 0x66 :{
     			Motor1_On(0, 30);
-    			HAL_Delay(100);
 				break;
 			}
     		case 0x74 :{
     			Motor2_On(1, 90);
-    			HAL_Delay(100);
 				break;
 			}
     		case 0x67 :{
     			Motor2_On(0, 90);
-    			HAL_Delay(100);
 				break;
 			}
     		case 0x79 :{
