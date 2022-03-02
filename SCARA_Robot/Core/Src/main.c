@@ -146,9 +146,9 @@ int main(void)
 //  while (HAL_GPIO_ReadPin(BLUE_BUTTON_GPIO_Port, BLUE_BUTTON_Pin) == 1);
   while (1)
   {
-	  for (int i = 0; i<sizeof (RX_Buffer); i++) {
-		  RX_Buffer[i] = 0;
-	  }
+//	  for (int i = 0; i<sizeof (RX_Buffer); i++) {
+//		  RX_Buffer[i] = 0;
+//	  }
 	  HAL_UART_Receive(&huart2, RX_Buffer, 7, 100);
 	  for (int i = 0; i<sizeof (package); i++) {
 		  package[i] = RX_Buffer[i];
@@ -762,9 +762,9 @@ void CheckSum(uint8_t sum){
 
 void clear_buffer(void) {
     int i;
-    for (int i = 0; i<sizeof (checksum); i++) {
-		checksum[i] = 0;
-	}
+//    for (int i = 0; i<sizeof (checksum); i++) {
+//		checksum[i] = 0;
+//	}
     for (i = 0; i<sizeof (package); i++) {
         package[i] = 0;
     }
@@ -802,7 +802,6 @@ void package_state(void) {
     if (state_check == 1) {
     	if (package[4] == 0x72) {
     		//j1+
-    		HAL_GPIO_TogglePin(LED1_GPIO_Port, LED1_Pin);
     		Motor1_On(0, 50);
 
     	} else if (package[4] == 0x66) {
