@@ -22,7 +22,7 @@
 
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
-
+#include <stdio.h>
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -76,12 +76,22 @@ void Motor1_Off();
 void Motor2_Off();
 void Motor3_Off();
 void Motor4_Off();
+//serial protocol function
+void CheckSum(uint8_t sum);
+void clear_buffer(void);
+void package_state(void);
 /* USER CODE END PFP */
 
 /* Private user code ---------------------------------------------------------*/
 /* USER CODE BEGIN 0 */
-
-
+//serial gobol variable
+uint8_t TX_Buffer[] = {0xFF};//"Hello World!\r\n";
+uint8_t RX_Buffer[8];
+uint8_t package[7];
+uint8_t state;
+uint8_t state_check;
+uint8_t checksum[2];
+uint8_t acknowledge[5] = {0xFF, 0x01, 0x01, 0x66, 0x65};
 /* USER CODE END 0 */
 
 /**
@@ -133,17 +143,18 @@ int main(void)
 //  HAL_TIM_PWM_Start(&htim2, TIM_CHANNEL_3); //M3
 //  HAL_TIM_PWM_Start(&htim1, TIM_CHANNEL_2); //M4
 
-  while (HAL_GPIO_ReadPin(BLUE_BUTTON_GPIO_Port, BLUE_BUTTON_Pin) == 1);
+//  while (HAL_GPIO_ReadPin(BLUE_BUTTON_GPIO_Port, BLUE_BUTTON_Pin) == 1);
   while (1)
   {
-	  Motor4_On(1, 100);
-	  HAL_Delay(1000);
-	  Motor4_Off();
-	  HAL_Delay(300);
-	  Motor4_On(0, 100);
-	  HAL_Delay(1000);
-	  Motor4_Off();
-	  HAL_Delay(300);
+	  for (int i = 0; i<sizeof (RX_Buffer); i++) {
+		  RX_Buffer[i] = 0;
+	  }
+	  HAL_UART_Receive(&huart2, RX_Buffer, 7, 100);
+	  for (int i = 0; i<sizeof (package); i++) {
+		  package[i] = RX_Buffer[i];
+			  //printf("package[%d] : %d\n", i, package[i]);
+	  }
+	  package_state();
     /* USER CODE END WHILE */
 
     /* USER CODE BEGIN 3 */
@@ -739,6 +750,102 @@ void Motor4_Off() {
 	HAL_TIM_PWM_Stop(&htim1, TIM_CHANNEL_2);
 }
 
+void CheckSum(uint8_t sum){
+	char str[2];
+	sum = ~sum;
+	sum++;
+	sprintf(str, "%x", sum);
+	for (int i = 0; i<sizeof (checksum); i++) {
+		checksum[i] = str[i];
+	}
+}
+
+void clear_buffer(void) {
+    int i;
+    for (int i = 0; i<sizeof (checksum); i++) {
+		checksum[i] = 0;
+	}
+    for (i = 0; i<sizeof (package); i++) {
+        package[i] = 0;
+    }
+}
+void package_state(void) {
+    int i;
+    uint8_t sum;
+    for (i = 1; i<sizeof (package) - 2; i++) {
+        sum += package[i];
+    }
+    CheckSum(sum);
+    if (package[0] == 0xFF) {
+        if (package[5] == checksum[0] && package[6] == checksum[1]) {
+            if (package[2] == 0x01) {
+            	//jointjog
+            	HAL_UART_Transmit(&huart2,acknowledge,sizeof(acknowledge),100);
+                state_check = 1;
+            } else if (package[1] == 0x02) {
+                state_check = 2;
+            } else if (package[1] == 0x03) {
+                state_check = 3;
+            } else {
+                //err();
+                clear_buffer();
+            }
+        } else {
+            //err();
+            clear_buffer();
+        }
+    } else {
+        //err();
+        clear_buffer();
+    }
+    //state_check > 1
+    if (state_check == 1) {
+    	if (package[4] == 0x72) {
+    		//j1+
+    		HAL_GPIO_TogglePin(LED1_GPIO_Port, LED1_Pin);
+    		Motor1_On(0, 50);
+
+    	} else if (package[4] == 0x66) {
+    		//j1-
+    		Motor1_On(1, 50);
+    	} else if (package[4] == 0x74) {
+    		//j2+
+    		Motor2_On(0, 50);
+    	} else if (package[4] == 0x67) {
+    		//j2-
+    		Motor2_On(1, 50);
+    	} else if (package[4] == 0x79) {
+    		//j3+
+    		Motor3_On(0, 50);
+    	} else if (package[4] == 0x41) {
+    		//j3-
+    		Motor3_On(1, 50);
+    	} else if (package[4] == 0x75) {
+    		//j4+
+    		Motor4_On(0, 50);
+    	} else if (package[4] == 0x6a) {
+    		//j4-
+    		Motor4_On(1, 50);
+    	} else {
+    		//err();
+    		clear_buffer();
+    		Motor1_Off();
+    		Motor2_Off();
+    		Motor3_Off();
+    		Motor4_Off();
+    	}
+    	clear_buffer();
+    	Motor1_Off();
+    	Motor2_Off();
+    	Motor3_Off();
+    	Motor4_Off();
+//    } else if (state_check == 2) {
+//
+//    } else if (state_check == 3) {
+//
+    }
+    state_check = 0;
+}
 /* USER CODE END 4 */
 
 /**
