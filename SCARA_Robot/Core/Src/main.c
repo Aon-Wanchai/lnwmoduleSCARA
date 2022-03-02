@@ -146,9 +146,9 @@ int main(void)
 //  while (HAL_GPIO_ReadPin(BLUE_BUTTON_GPIO_Port, BLUE_BUTTON_Pin) == 1);
   while (1)
   {
-//	  for (int i = 0; i<sizeof (RX_Buffer); i++) {
-//		  RX_Buffer[i] = 0;
-//	  }
+	  for (int i = 0; i<sizeof (RX_Buffer); i++) {
+		  RX_Buffer[i] = 0;
+	  }
 	  HAL_UART_Receive(&huart2, RX_Buffer, 7, 100);
 	  for (int i = 0; i<sizeof (package); i++) {
 		  package[i] = RX_Buffer[i];
@@ -800,47 +800,56 @@ void package_state(void) {
     }
     //state_check > 1
     if (state_check == 1) {
-    	if (package[4] == 0x72) {
-    		//j1+
-    		Motor1_On(0, 50);
-
-    	} else if (package[4] == 0x66) {
-    		//j1-
-    		Motor1_On(1, 50);
-    	} else if (package[4] == 0x74) {
-    		//j2+
-    		Motor2_On(0, 50);
-    	} else if (package[4] == 0x67) {
-    		//j2-
-    		Motor2_On(1, 50);
-    	} else if (package[4] == 0x79) {
-    		//j3+
-    		Motor3_On(0, 50);
-    	} else if (package[4] == 0x41) {
-    		//j3-
-    		Motor3_On(1, 50);
-    	} else if (package[4] == 0x75) {
-    		//j4+
-    		Motor4_On(0, 50);
-    	} else if (package[4] == 0x6a) {
-    		//j4-
-    		Motor4_On(1, 50);
-    	} else {
-    		//err();
-    		clear_buffer();
-    		Motor1_Off();
-    		Motor2_Off();
-    		Motor3_Off();
-    		Motor4_Off();
+    	switch (package[4]) {
+    		case 0x72 :{
+    			Motor1_On(1, 30);
+    			break;
+    		}
+    		case 0x66 :{
+    			Motor1_On(0, 30);
+				break;
+			}
+    		case 0x74 :{
+    			Motor2_On(1, 70);
+				break;
+			}
+    		case 0x67 :{
+    			Motor2_On(0, 70);
+				break;
+			}
+    		case 0x79 :{
+    			Motor3_On(1, 50);
+				break;
+			}
+    		case 0x41 :{
+    			Motor3_On(0, 50);
+				break;
+			}
+			case 0x75 :{
+				Motor4_On(1, 50);
+				break;
+			}
+			case 0x6a :{
+				Motor4_On(0, 50);
+				break;
+			}
+			default:{
+				//err();
+				clear_buffer();
+				Motor1_Off();
+				Motor2_Off();
+				Motor3_Off();
+				Motor4_Off();
+			}
     	}
     	clear_buffer();
     	Motor1_Off();
     	Motor2_Off();
     	Motor3_Off();
     	Motor4_Off();
-//    } else if (state_check == 2) {
+//    } else if (state_check == 2) { case
 //
-//    } else if (state_check == 3) {
+//    } else if (state_check == 3) { case
 //
     }
     state_check = 0;
