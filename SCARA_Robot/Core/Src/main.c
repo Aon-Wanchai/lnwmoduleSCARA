@@ -89,18 +89,34 @@ void test_aon() {
 		Motor2_Off();
 	}
 }
+
 /* USER CODE END PFP */
 
 /* Private user code ---------------------------------------------------------*/
 /* USER CODE BEGIN 0 */
 //serial gobol variable
 uint8_t TX_Buffer[] = {0xFF};//"Hello World!\r\n";
-uint8_t RX_Buffer[8];
+uint8_t RX_Buffer[7]= {0};
 uint8_t package[7];
 uint8_t state;
 uint8_t state_check;
 uint8_t checksum[2];
 uint8_t acknowledge[5] = {0xFF, 0x01, 0x01, 0x66, 0x65};
+
+void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart)
+{
+//	HAL_UART_Receive(&huart2, RX_Buffer, 7,100);
+
+	for (int i = 0; i<sizeof (package); i++) {
+		package[i] = RX_Buffer[i];
+		//printf("package[%d] : %d\n", i, package[i]);
+	}
+	package_state();
+	for (int i = 0; i<sizeof (RX_Buffer); i++) {
+		RX_Buffer[i] = 0;
+	}
+	HAL_UART_Receive_IT(&huart2, RX_Buffer, 7);
+}
 /* USER CODE END 0 */
 
 /**
@@ -152,24 +168,25 @@ int main(void)
 //  HAL_TIM_PWM_Start(&htim2, TIM_CHANNEL_3); //M3
 //  HAL_TIM_PWM_Start(&htim1, TIM_CHANNEL_2); //M4
 
-  while (HAL_GPIO_ReadPin(BLUE_BUTTON_GPIO_Port, BLUE_BUTTON_Pin) == 1);
+//  while (HAL_GPIO_ReadPin(BLUE_BUTTON_GPIO_Port, BLUE_BUTTON_Pin) == 1);
   while (1)
   {
 //	  for (int i = 0; i<sizeof (RX_Buffer); i++) {
 //		  RX_Buffer[i] = 0;
 //	  }
-//	  HAL_UART_Receive(&huart2, RX_Buffer, 7, 100);
+//	  HAL_UART_Receive(&huart2, RX_Buffer, 7,100);
+	  HAL_UART_Receive_IT(&huart2, RX_Buffer, 7);
 //	  for (int i = 0; i<sizeof (package); i++) {
 //		  package[i] = RX_Buffer[i];
 //			  //printf("package[%d] : %d\n", i, package[i]);
 //	  }
 //	  package_state();
-	  if (HAL_GPIO_ReadPin(BLUE_BUTTON_GPIO_Port, BLUE_BUTTON_Pin) == 0) {
-	  		Motor2_On(0, 90);
-	  	}
-	  	else {
-	  		Motor2_Off();
-	  	}
+//	  if (HAL_GPIO_ReadPin(BLUE_BUTTON_GPIO_Port, BLUE_BUTTON_Pin) == 0) {
+//	  		Motor2_On(0, 90);
+//	  	}
+//	  	else {
+//	  		Motor2_Off();
+//	  	}
 //	  test_aon();
     /* USER CODE END WHILE */
 
@@ -791,7 +808,7 @@ void clear_buffer(void) {
 }
 void package_state(void) {
     int i;
-    uint8_t sum;
+    uint8_t sum=0;
     for (i = 1; i<sizeof (package) - 2; i++) {
         sum += package[i];
     }
