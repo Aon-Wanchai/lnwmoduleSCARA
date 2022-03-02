@@ -709,28 +709,32 @@ void Motor1_On(char Direction, char speed) {
 	HAL_GPIO_WritePin(DIR_M1_GPIO_Port, DIR_M1_Pin, Direction);
 
 	//Min 60000 = 15 Hz, Max 2571 = 350Hz
-	TIM3->PSC = (900000 / map(speed, 0, 100, 15, 350)) - 1;
+//	TIM3->PSC = (900000 / map(speed, 0, 100, 15, 350)) - 1;
+	htim3.Init.Prescaler = (900000 / map(speed, 0, 100, 15, 350)) - 1;
 	HAL_TIM_PWM_Start(&htim3, TIM_CHANNEL_1);
 }
 
 void Motor2_On(char Direction, char speed) {
 	HAL_GPIO_WritePin(DIR_M2_GPIO_Port, DIR_M2_Pin, Direction);
 	//Min 18000 = 50 Hz, Max 750 = 1.2 KHz
-	TIM4->PSC = (900000 / map(speed, 0, 100, 50, 1200)) - 1;
+//	TIM4->PSC = (900000 / map(speed, 0, 100, 50, 1200)) - 1;
+	htim4.Init.Prescaler = (900000 / map(speed, 0, 100, 50, 1200)) - 1;
 	HAL_TIM_PWM_Start(&htim4, TIM_CHANNEL_1);
 }
 
 void Motor3_On(char Direction, char speed) {
 	HAL_GPIO_WritePin(DIR_M3_GPIO_Port, DIR_M3_Pin, Direction);
 	//Min 30000 = 30 Hz, Max 1800 = 500 Hz
-	TIM2->PSC = (900000 / map(speed, 0, 100, 30, 500)) - 1;
+//	TIM2->PSC = (900000 / map(speed, 0, 100, 30, 500)) - 1;
+	htim2.Init.Prescaler = (900000 / map(speed, 0, 100, 30, 500)) - 1;
 	HAL_TIM_PWM_Start(&htim2, TIM_CHANNEL_3);
 }
 
 void Motor4_On(char Direction, char speed) {
 	HAL_GPIO_WritePin(DIR_M4_GPIO_Port, DIR_M4_Pin, Direction);
 	//Min 600000  = 30 Hz,  Max 1800 = 1 KHz
-	TIM1->PSC = (1800000 / map(speed, 0, 100, 30, 1000)) - 1;
+//	TIM1->PSC = (1800000 / map(speed, 0, 100, 30, 1000)) - 1;
+	htim1.Init.Prescaler =(1800000 / map(speed, 0, 100, 30, 1000)) - 1;
 	HAL_TIM_PWM_Start(&htim1, TIM_CHANNEL_2);
 }
 
