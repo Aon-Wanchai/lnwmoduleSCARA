@@ -171,6 +171,7 @@ int main(void)
 //  while (HAL_GPIO_ReadPin(BLUE_BUTTON_GPIO_Port, BLUE_BUTTON_Pin) == 1);
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 
   while (1)
   {
@@ -277,10 +278,15 @@ int main(void)
   while (1)
   {
 >>>>>>> parent of 5567463 (JointJog and Serial Communication)
+=======
+  while (1)
+  {
+>>>>>>> parent of 5567463 (JointJog and Serial Communication)
 //	  for (int i = 0; i<sizeof (RX_Buffer); i++) {
 //		  RX_Buffer[i] = 0;
 //	  }
 //	  HAL_UART_Receive(&huart2, RX_Buffer, 7,100);
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
 //	  HAL_UART_Receive_IT(&huart2, RX_Buffer, 7);
@@ -289,6 +295,9 @@ int main(void)
 
 
 >>>>>>> 55674639bcfb3970dad751e54c9e5ab726881516
+=======
+	  HAL_UART_Receive_IT(&huart2, RX_Buffer, 7);
+>>>>>>> parent of 5567463 (JointJog and Serial Communication)
 =======
 	  HAL_UART_Receive_IT(&huart2, RX_Buffer, 7);
 >>>>>>> parent of 5567463 (JointJog and Serial Communication)
