@@ -76,6 +76,10 @@ void Motor1_Off();
 void Motor2_Off();
 void Motor3_Off();
 void Motor4_Off();
+void Motor1_SetPWM(uint16_t speed);
+void Motor2_SetPWM(uint16_t speed);
+void Motor3_SetPWM(uint16_t speed);
+void Motor4_SetPWM(uint16_t speed);
 //serial protocol function
 void CheckSum(uint8_t sum);
 void clear_buffer(void);
@@ -117,6 +121,8 @@ void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart)
 	}
 	HAL_UART_Receive_IT(&huart2, RX_Buffer, 7);
 }
+
+
 /* USER CODE END 0 */
 
 /**
@@ -169,13 +175,106 @@ int main(void)
 //  HAL_TIM_PWM_Start(&htim1, TIM_CHANNEL_2); //M4
 
 //  while (HAL_GPIO_ReadPin(BLUE_BUTTON_GPIO_Port, BLUE_BUTTON_Pin) == 1);
+//  Motor1_SetPWM(180);
+//  Motor2_SetPWM(1000);
+//  Motor3_SetPWM(250);
+//  Motor4_SetPWM(500);
+
+  HAL_TIM_PWM_Start(&htim3, TIM_CHANNEL_1); //M1
+  HAL_TIM_PWM_Start(&htim4, TIM_CHANNEL_1); //M2
+  HAL_TIM_PWM_Start(&htim2, TIM_CHANNEL_3); //M3
+  HAL_TIM_PWM_Start(&htim1, TIM_CHANNEL_2); //M4
+
+  Motor1_Off();
+  Motor2_Off();
+  Motor3_Off();
+  Motor4_Off();
+
+  HAL_UART_Receive_IT(&huart2, RX_Buffer, 7);
   while (1)
   {
+	  //state_check > 1
+	      if (state_check == 1) {
+	      	switch (package[4]) {
+	      		case 0x72 :{
+	      			Motor1_SetPWM(50);
+	      			Motor1_On(1, 30);
+	      			HAL_Delay(200);
+	      			break;
+	      		}
+	      		case 0x66 :{
+	      			Motor1_SetPWM(50);
+	      			Motor1_On(0, 30);
+	      			HAL_Delay(200);
+	  				break;
+	  			}
+	      		case 0x74 :{
+	      			Motor2_SetPWM(500);
+	      			Motor2_On(1, 150);
+	      			HAL_Delay(200);
+	  				break;
+	  			}
+	      		case 0x67 :{
+	      			Motor2_SetPWM(500);
+	      			Motor2_On(0, 100);
+	      			HAL_Delay(200);
+	  				break;
+	  			}
+	      		case 0x79 :{
+	      			Motor3_SetPWM(100);
+	      			Motor3_On(1, 50);
+	      			HAL_Delay(200);
+	  				break;
+	  			}
+	      		case 0x41 :{
+	      			Motor3_SetPWM(100);
+	      			Motor3_On(0, 50);
+	      			HAL_Delay(200);
+	  				break;
+	  			}
+	  			case 0x75 :{
+	  				Motor4_SetPWM(200);
+	  				Motor4_On(1, 50);
+	  				HAL_Delay(200);
+	  				break;
+	  			}
+	  			case 0x6a :{
+	  				Motor4_SetPWM(200);
+	  				Motor4_On(0, 50);
+	  				HAL_Delay(200);
+	  				break;
+	  			}
+	  			default:{
+	  				//err();
+	  				clear_buffer();
+//	  				Motor1_Off();
+//	  				Motor2_Off();
+//	  				Motor3_Off();
+//	  				Motor4_Off();
+	  			}
+	      	}
+	      	clear_buffer();
+//	      	Motor1_Off();
+//	      	Motor2_Off();
+//	      	Motor3_Off();
+//	      	Motor4_Off();
+	  //    } else if (state_check == 2) { case
+	  //
+	  //    } else if (state_check == 3) { case
+	  //
+	      }
+	      state_check = 0;
+	      Motor1_Off();
+		Motor2_Off();
+		Motor3_Off();
+		Motor4_Off();
 //	  for (int i = 0; i<sizeof (RX_Buffer); i++) {
 //		  RX_Buffer[i] = 0;
 //	  }
 //	  HAL_UART_Receive(&huart2, RX_Buffer, 7,100);
-	  HAL_UART_Receive_IT(&huart2, RX_Buffer, 7);
+
+
+
 //	  for (int i = 0; i<sizeof (package); i++) {
 //		  package[i] = RX_Buffer[i];
 //			  //printf("package[%d] : %d\n", i, package[i]);
@@ -188,6 +287,20 @@ int main(void)
 //	  		Motor2_Off();
 //	  	}
 //	  test_aon();
+	  /*Motor3_SetPWM(300);
+
+	  Motor3_On(1, 1);
+	  HAL_Delay(1000);
+
+	  Motor3_Off();
+	  HAL_Delay(500);
+
+	  Motor3_SetPWM(300);
+
+	  Motor3_On(0, 1);
+	  HAL_Delay(1000);
+	  Motor3_Off();
+	  HAL_Delay(500);*/
     /* USER CODE END WHILE */
 
     /* USER CODE BEGIN 3 */
@@ -305,12 +418,12 @@ static void MX_TIM1_Init(void)
 
   /* USER CODE END TIM1_Init 1 */
   htim1.Instance = TIM1;
-  htim1.Init.Prescaler = 18000-1;
+  htim1.Init.Prescaler = 2999;
   htim1.Init.CounterMode = TIM_COUNTERMODE_UP;
   htim1.Init.Period = 100-1;
   htim1.Init.ClockDivision = TIM_CLOCKDIVISION_DIV1;
   htim1.Init.RepetitionCounter = 0;
-  htim1.Init.AutoReloadPreload = TIM_AUTORELOAD_PRELOAD_DISABLE;
+  htim1.Init.AutoReloadPreload = TIM_AUTORELOAD_PRELOAD_ENABLE;
   if (HAL_TIM_Base_Init(&htim1) != HAL_OK)
   {
     Error_Handler();
@@ -379,11 +492,11 @@ static void MX_TIM2_Init(void)
 
   /* USER CODE END TIM2_Init 1 */
   htim2.Instance = TIM2;
-  htim2.Init.Prescaler = 9000-1;
+  htim2.Init.Prescaler = 1499;
   htim2.Init.CounterMode = TIM_COUNTERMODE_UP;
-  htim2.Init.Period = 100-1;
+  htim2.Init.Period = 119;
   htim2.Init.ClockDivision = TIM_CLOCKDIVISION_DIV1;
-  htim2.Init.AutoReloadPreload = TIM_AUTORELOAD_PRELOAD_DISABLE;
+  htim2.Init.AutoReloadPreload = TIM_AUTORELOAD_PRELOAD_ENABLE;
   if (HAL_TIM_Base_Init(&htim2) != HAL_OK)
   {
     Error_Handler();
@@ -404,7 +517,7 @@ static void MX_TIM2_Init(void)
     Error_Handler();
   }
   sConfigOC.OCMode = TIM_OCMODE_PWM1;
-  sConfigOC.Pulse = 50;
+  sConfigOC.Pulse = 60;
   sConfigOC.OCPolarity = TIM_OCPOLARITY_HIGH;
   sConfigOC.OCFastMode = TIM_OCFAST_DISABLE;
   if (HAL_TIM_PWM_ConfigChannel(&htim2, &sConfigOC, TIM_CHANNEL_3) != HAL_OK)
@@ -438,11 +551,11 @@ static void MX_TIM3_Init(void)
 
   /* USER CODE END TIM3_Init 1 */
   htim3.Instance = TIM3;
-  htim3.Init.Prescaler = 10000-1;
+  htim3.Init.Prescaler = 1499;
   htim3.Init.CounterMode = TIM_COUNTERMODE_UP;
   htim3.Init.Period = 100-1;
   htim3.Init.ClockDivision = TIM_CLOCKDIVISION_DIV1;
-  htim3.Init.AutoReloadPreload = TIM_AUTORELOAD_PRELOAD_DISABLE;
+  htim3.Init.AutoReloadPreload = TIM_AUTORELOAD_PRELOAD_ENABLE;
   if (HAL_TIM_Base_Init(&htim3) != HAL_OK)
   {
     Error_Handler();
@@ -497,11 +610,11 @@ static void MX_TIM4_Init(void)
 
   /* USER CODE END TIM4_Init 1 */
   htim4.Instance = TIM4;
-  htim4.Init.Prescaler = 9000-1;
+  htim4.Init.Prescaler = 1499;
   htim4.Init.CounterMode = TIM_COUNTERMODE_UP;
   htim4.Init.Period = 100-1;
   htim4.Init.ClockDivision = TIM_CLOCKDIVISION_DIV1;
-  htim4.Init.AutoReloadPreload = TIM_AUTORELOAD_PRELOAD_DISABLE;
+  htim4.Init.AutoReloadPreload = TIM_AUTORELOAD_PRELOAD_ENABLE;
   if (HAL_TIM_Base_Init(&htim4) != HAL_OK)
   {
     Error_Handler();
@@ -740,51 +853,55 @@ long map(long x, long fromLow, long fromHigh, long toLow, long toHigh) {
 
 void Motor1_On(char Direction, char speed) {
 	HAL_GPIO_WritePin(DIR_M1_GPIO_Port, DIR_M1_Pin, Direction);
-
-	//Min 60000 = 15 Hz, Max 2571 = 350Hz
-//	TIM3->PSC = (900000 / map(speed, 0, 100, 15, 350)) - 1;
-	htim3.Init.Prescaler = (900000 / map(speed, 0, 100, 15, 350)) - 1;
-	HAL_TIM_PWM_Start(&htim3, TIM_CHANNEL_1);
 }
 
 void Motor2_On(char Direction, char speed) {
 	HAL_GPIO_WritePin(DIR_M2_GPIO_Port, DIR_M2_Pin, Direction);
-	//Min 18000 = 50 Hz, Max 750 = 1.2 KHz
-	TIM4->PSC = (900000 / map(speed, 0, 100, 50, 1200)) - 1;//50-1200
-//	htim4.Init.Prescaler = (900000 / map(speed, 0, 100, 50, 1200)) - 1;
-	HAL_TIM_PWM_Start(&htim4, TIM_CHANNEL_1);
 }
 
 void Motor3_On(char Direction, char speed) {
 	HAL_GPIO_WritePin(DIR_M3_GPIO_Port, DIR_M3_Pin, Direction);
-	//Min 30000 = 30 Hz, Max 1800 = 500 Hz
-//	TIM2->PSC = (900000 / map(speed, 0, 100, 30, 500)) - 1;
-	htim2.Init.Prescaler = (900000 / map(speed, 0, 100, 30, 500)) - 1;
-	HAL_TIM_PWM_Start(&htim2, TIM_CHANNEL_3);
+
 }
 
 void Motor4_On(char Direction, char speed) {
 	HAL_GPIO_WritePin(DIR_M4_GPIO_Port, DIR_M4_Pin, Direction);
-	//Min 600000  = 30 Hz,  Max 1800 = 1 KHz
-//	TIM1->PSC = (1800000 / map(speed, 0, 100, 30, 1000)) - 1;
-	htim1.Init.Prescaler =(1800000 / map(speed, 0, 100, 30, 1000)) - 1;
-	HAL_TIM_PWM_Start(&htim1, TIM_CHANNEL_2);
+}
+
+void Motor1_SetPWM (uint16_t speed) {
+	TIM3->ARR = (60000 / speed) -1;
+	TIM3->CCR1 = (TIM4->ARR+1)/2;
+}
+
+void Motor2_SetPWM (uint16_t speed) {
+	TIM4->ARR = (60000 / speed) -1;
+	TIM4->CCR1 = (TIM4->ARR+1)/2;
+}
+
+void Motor3_SetPWM (uint16_t speed) {
+	TIM2->ARR = (60000 / speed) -1;
+	TIM2->CCR3 = (TIM2->ARR+1)/2;
+}
+
+void Motor4_SetPWM (uint16_t speed) {
+	TIM1->ARR = (60000 / speed) -1;
+	TIM1->CCR2 = (TIM1->ARR+1)/2;
 }
 
 void Motor1_Off() {
-	HAL_TIM_PWM_Stop(&htim3, TIM_CHANNEL_1);
+	TIM3->CCR1 = 0;
 }
 
 void Motor2_Off() {
-	HAL_TIM_PWM_Stop(&htim4, TIM_CHANNEL_1);
+	TIM4->CCR1 = 0;
 }
 
 void Motor3_Off() {
-	HAL_TIM_PWM_Stop(&htim2, TIM_CHANNEL_3);
+	TIM2->CCR3 = 0;
 }
 
 void Motor4_Off() {
-	HAL_TIM_PWM_Stop(&htim1, TIM_CHANNEL_2);
+	TIM1->CCR2 = 0;
 }
 
 void CheckSum(uint8_t sum){
@@ -835,61 +952,71 @@ void package_state(void) {
         //err();
         clear_buffer();
     }
-    //state_check > 1
-    if (state_check == 1) {
-    	switch (package[4]) {
-    		case 0x72 :{
-    			Motor1_On(1, 30);
-    			break;
-    		}
-    		case 0x66 :{
-    			Motor1_On(0, 30);
-				break;
-			}
-    		case 0x74 :{
-    			Motor2_On(1, 100);
-				break;
-			}
-    		case 0x67 :{
-    			Motor2_On(0, 100);
-				break;
-			}
-    		case 0x79 :{
-    			Motor3_On(1, 50);
-				break;
-			}
-    		case 0x41 :{
-    			Motor3_On(0, 50);
-				break;
-			}
-			case 0x75 :{
-				Motor4_On(1, 50);
-				break;
-			}
-			case 0x6a :{
-				Motor4_On(0, 50);
-				break;
-			}
-			default:{
-				//err();
-				clear_buffer();
-				Motor1_Off();
-				Motor2_Off();
-				Motor3_Off();
-				Motor4_Off();
-			}
-    	}
-    	clear_buffer();
-    	Motor1_Off();
-    	Motor2_Off();
-    	Motor3_Off();
-    	Motor4_Off();
-//    } else if (state_check == 2) { case
-//
-//    } else if (state_check == 3) { case
-//
-    }
-    state_check = 0;
+//    //state_check > 1
+//    if (state_check == 1) {
+//    	switch (package[4]) {
+//    		case 0x72 :{
+//    			Motor1_SetPWM(180);
+//    			Motor1_On(1, 30);
+////    			HAL_Delay(100);
+//    			break;
+//    		}
+//    		case 0x66 :{
+//    			Motor1_SetPWM(180);
+//    			Motor1_On(0, 30);
+////    			HAL_Delay(100);
+//				break;
+//			}
+//    		case 0x74 :{
+//    			Motor2_SetPWM(1000);
+//    			Motor2_On(1, 100);
+//				break;
+//			}
+//    		case 0x67 :{
+//    			Motor2_SetPWM(1000);
+//    			Motor2_On(0, 100);
+//				break;
+//			}
+//    		case 0x79 :{
+//    			Motor3_SetPWM(250);
+//    			Motor3_On(1, 50);
+//				break;
+//			}
+//    		case 0x41 :{
+//    			Motor3_SetPWM(250);
+//    			Motor3_On(0, 50);
+//				break;
+//			}
+//			case 0x75 :{
+//				Motor4_SetPWM(500);
+//				Motor4_On(1, 50);
+//				break;
+//			}
+//			case 0x6a :{
+//				Motor4_SetPWM(500);
+//				Motor4_On(0, 50);
+//				break;
+//			}
+//			default:{
+//				//err();
+//				clear_buffer();
+//				Motor1_Off();
+//				Motor2_Off();
+//				Motor3_Off();
+//				Motor4_Off();
+//			}
+//    	}
+//    	clear_buffer();
+//    	Motor1_Off();
+//    	Motor2_Off();
+//    	Motor3_Off();
+//    	Motor4_Off();
+////    } else if (state_check == 2) { case
+////
+////    } else if (state_check == 3) { case
+////
+//    }
+//    state_check = 0;
 }
 /* USER CODE END 4 */
 
