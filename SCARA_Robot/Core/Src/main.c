@@ -750,7 +750,7 @@ void Motor1_On(char Direction, char speed) {
 void Motor2_On(char Direction, char speed) {
 	HAL_GPIO_WritePin(DIR_M2_GPIO_Port, DIR_M2_Pin, Direction);
 	//Min 18000 = 50 Hz, Max 750 = 1.2 KHz
-	TIM4->PSC = (900000 / map(speed, 0, 100, 50, 1200)) - 1;
+	TIM4->PSC = (900000 / map(speed, 0, 100, 50, 1200)) - 1;//50-1200
 //	htim4.Init.Prescaler = (900000 / map(speed, 0, 100, 50, 1200)) - 1;
 	HAL_TIM_PWM_Start(&htim4, TIM_CHANNEL_1);
 }
@@ -847,11 +847,11 @@ void package_state(void) {
 				break;
 			}
     		case 0x74 :{
-    			Motor2_On(1, 90);
+    			Motor2_On(1, 100);
 				break;
 			}
     		case 0x67 :{
-    			Motor2_On(0, 90);
+    			Motor2_On(0, 100);
 				break;
 			}
     		case 0x79 :{
