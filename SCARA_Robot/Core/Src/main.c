@@ -169,13 +169,18 @@ int main(void)
 //  HAL_TIM_PWM_Start(&htim1, TIM_CHANNEL_2); //M4
 
 //  while (HAL_GPIO_ReadPin(BLUE_BUTTON_GPIO_Port, BLUE_BUTTON_Pin) == 1);
+
   while (1)
   {
+	  Motor2_On(1, 100);
+	  HAL_Delay(1000);
+	  Motor2_On(0, 100);
+	  HAL_Delay(1000);
 //	  for (int i = 0; i<sizeof (RX_Buffer); i++) {
 //		  RX_Buffer[i] = 0;
 //	  }
 //	  HAL_UART_Receive(&huart2, RX_Buffer, 7,100);
-	  HAL_UART_Receive_IT(&huart2, RX_Buffer, 7);
+//	  HAL_UART_Receive_IT(&huart2, RX_Buffer, 7);
 //	  for (int i = 0; i<sizeof (package); i++) {
 //		  package[i] = RX_Buffer[i];
 //			  //printf("package[%d] : %d\n", i, package[i]);
